@@ -25,8 +25,11 @@ Kd = np.diag([20, 20])
 
 # --- Dynamics function ---
 def robot_dynamics(t, y):
-    q = y[:model.nq]
-    v = y[model.nq:]
+    #y=state vector: [q1,q2,v1,v2]
+    #nq = position DOFs
+    #nv = velocity DOFs
+    q = y[:model.nq] #joint positions
+    v = y[model.nq:] #joint velocities
 
     # Forward kinematics
     pin.forwardKinematics(model, data, q, v)
