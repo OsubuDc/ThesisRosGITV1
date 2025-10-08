@@ -37,15 +37,14 @@ RUN echo "source /opt/ros/${ROS_DISTRO}/setup.bash" >> ~/.bashrc
 ## ADD ANY CUSTOM SETUP BELOW ##
 ################################
 
-################################
-## ADD ANY CUSTOM SETUP BELOW ##
-################################
-
 # Install dependencies
 RUN sudo apt-get update && sudo apt-get install -y \
     nano \
     lsb-release \
     curl \
+    ros-humble-robot-state-publisher \
+    ros-humble-joint-state-publisher \
+    ros-humble-joint-state-publisher-gui \
     && sudo rm -rf /var/lib/apt/lists/*
 
 # Register robotpkg key and add repository
@@ -64,15 +63,5 @@ RUN echo 'export PATH=/opt/openrobots/bin:$PATH' >> ~/.bashrc && \
     echo 'export PYTHONPATH=/opt/openrobots/lib/python3.10/site-packages:$PYTHONPATH' >> ~/.bashrc && \
     echo 'export CMAKE_PREFIX_PATH=/opt/openrobots:$CMAKE_PREFIX_PATH' >> ~/.bashrc
 
-# Install pip for the user
-RUN sudo apt-get update && sudo apt-get install -y python3-pip
 
-# Install Meshcat for the user
-RUN pip3 install --user meshcat
-
-# Make sure user-level bin is in PATH
-ENV PATH=$HOME/.local/bin:$PATH
-
-# Expose Meshcat port
-EXPOSE 7000
 
