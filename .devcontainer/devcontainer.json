@@ -10,7 +10,7 @@
   "mounts": [
     "source=${localEnv:HOME}${localEnv:USERPROFILE}/.bash_history,target=/home/vscode/.bash_history,type=bind"
   ],
-   "customizations": {
+  "customizations": {
     "vscode": {
       "extensions": [
         "ms-python.python"

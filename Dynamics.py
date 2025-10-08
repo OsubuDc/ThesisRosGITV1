@@ -2,6 +2,8 @@ import numpy as np
 import pinocchio as pin
 from pinocchio.robot_wrapper import RobotWrapper
 from scipy.integrate import solve_ivp
+import sys
+
 
 # --- Load robot model ---
 urdf_path = "/ThesisRosGITV1/V2_URDF/urdf/V2_URDF_fixed.urdf"
@@ -14,8 +16,7 @@ ee_frame = "EndEffector"
 ee_id = model.getFrameId(ee_frame)
 
 # --- Desired target in XY plane (reachable!) ---
-# Current EE at q=[0,0] is ~[0.43, 0.0], pick target closer to base
-x_des = np.array([0.35, 0])  # target X, Y
+x_des = np.array([0.05, 0.05])
 xdot_des = np.zeros(2)
 xddot_des = np.zeros(2)
 
@@ -25,26 +26,23 @@ Kd = np.diag([20, 20])
 
 # --- Dynamics function ---
 def robot_dynamics(t, y):
-    #y=state vector: [q1,q2,v1,v2]
-    #nq = position DOFs
-    #nv = velocity DOFs
-    q = y[:model.nq] #joint positions
-    v = y[model.nq:] #joint velocities
+    q = y[:model.nq]
+    v = y[model.nq:]
 
     # Forward kinematics
     pin.forwardKinematics(model, data, q, v)
     pin.updateFramePlacements(model, data)
 
-    # Jacobian in XY plane
+    # Jacobian and its derivative
     J = pin.computeFrameJacobian(model, data, q, ee_id)[:2, :]
-    allJ=pin.computeJointJacobiansTimeVariation(model, data, q, v)
     J_dot = pin.getFrameJacobianTimeVariation(model, data, ee_id, pin.WORLD)[:2, :]
-    # EE position and error in XY plane
+
+    # EE position and errors
     x = data.oMf[ee_id].translation[:2]
     x_err = x_des - x
     xdot_err = xdot_des - J @ v
 
-    # Desired EE acceleration in XY
+    # Desired EE acceleration
     x_acc_des = xddot_des + Kd @ xdot_err + Kp @ x_err
 
     # Inverse dynamics
@@ -52,22 +50,30 @@ def robot_dynamics(t, y):
     n = pin.rnea(model, data, q, v, np.zeros(model.nv))
 
     # Map task-space acceleration to joint-space
-    qddot_task = np.linalg.pinv(J, rcond=1e-2) @ (x_acc_des - J_dot @ v)  # damping added
-    tau = B @ qddot_task + n
+    qddot_task = np.linalg.pinv(J, rcond=1e-2) @ (x_acc_des - J_dot @ v)
+    u = B @ qddot_task + n
 
-    # Compute actual joint accelerations
-    qddot = np.linalg.solve(B, tau - n)
+    # Actual joint accelerations
+    qddot = np.linalg.solve(B, u - n)
 
-    print("Position error XY:", x_err)
+    # --- Live print (updates one line) ---
+    sys.stdout.write(
+        f"\rTime: {t:5.3f} s | EE XY: [{x[0]:+.3f}, {x[1]:+.3f}] | "
+        f"Err: [{x_err[0]:+.4f}, {x_err[1]:+.4f}]"
+    )
+    sys.stdout.flush()
+
     return np.concatenate((v, qddot))
 
 # --- Initial state: slightly bent to avoid singularity ---
-y0 = np.array([0.1, -0.1, 0.0, 0.0])  # [q1, q2, v1, v2]
+y0 = np.array([0.2, 0.1, 0.0, 0.0])
 
 # --- Integrate using RK45 ---
-sol = solve_ivp(robot_dynamics, [0, 2.0], y0, method='RK45', max_step=0.001)
+print("Running simulation...")
+sol = solve_ivp(robot_dynamics, [0, 4.0], y0, method='RK45', max_step=0.001)
+print("\nSimulation finished.\n")
 
-# --- Extract joint trajectories ---
+# --- Extract trajectories ---
 q_traj = sol.y[:model.nq, :].T
 v_traj = sol.y[model.nq:, :].T
 
@@ -79,4 +85,4 @@ for q_i in q_traj:
     x_traj.append(data.oMf[ee_id].translation[:2])
 x_traj = np.array(x_traj)
 
-print("Simulation done. Final EE XY:", x_traj[-1])
+print(f"Final EE XY: {x_traj[-1]}")
