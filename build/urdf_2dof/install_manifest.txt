@@ -1,0 +1,15 @@
+/ThesisRosGITV1/install/urdf_2dof/share/ament_index/resource_index/package_run_dependencies/urdf_2dof
+/ThesisRosGITV1/install/urdf_2dof/share/ament_index/resource_index/parent_prefix_path/urdf_2dof
+/ThesisRosGITV1/install/urdf_2dof/share/urdf_2dof/environment/ament_prefix_path.sh
+/ThesisRosGITV1/install/urdf_2dof/share/urdf_2dof/environment/ament_prefix_path.dsv
+/ThesisRosGITV1/install/urdf_2dof/share/urdf_2dof/environment/path.sh
+/ThesisRosGITV1/install/urdf_2dof/share/urdf_2dof/environment/path.dsv
+/ThesisRosGITV1/install/urdf_2dof/share/urdf_2dof/local_setup.bash
+/ThesisRosGITV1/install/urdf_2dof/share/urdf_2dof/local_setup.sh
+/ThesisRosGITV1/install/urdf_2dof/share/urdf_2dof/local_setup.zsh
+/ThesisRosGITV1/install/urdf_2dof/share/urdf_2dof/local_setup.dsv
+/ThesisRosGITV1/install/urdf_2dof/share/urdf_2dof/package.dsv
+/ThesisRosGITV1/install/urdf_2dof/share/ament_index/resource_index/packages/urdf_2dof
+/ThesisRosGITV1/install/urdf_2dof/share/urdf_2dof/cmake/urdf_2dofConfig.cmake
+/ThesisRosGITV1/install/urdf_2dof/share/urdf_2dof/cmake/urdf_2dofConfig-version.cmake
+/ThesisRosGITV1/install/urdf_2dof/share/urdf_2dof/package.xml
