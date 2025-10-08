@@ -37,9 +37,8 @@ def robot_dynamics(t, y):
 
     # Jacobian in XY plane
     J = pin.computeFrameJacobian(model, data, q, ee_id)[:2, :]
-    pin.computeJointJacobiansTimeVariation(model, data, q, v)
+    allJ=pin.computeJointJacobiansTimeVariation(model, data, q, v)
     J_dot = pin.getFrameJacobianTimeVariation(model, data, ee_id, pin.WORLD)[:2, :]
-
     # EE position and error in XY plane
     x = data.oMf[ee_id].translation[:2]
     x_err = x_des - x
