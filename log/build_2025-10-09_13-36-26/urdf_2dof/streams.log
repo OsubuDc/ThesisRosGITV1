@@ -1,0 +1,11 @@
+[0.653s] Invoking command in '/ThesisRosGITV1/src/urdf_2dof': PYTHONPATH=/ThesisRosGITV1/build/urdf_2dof/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/ThesisRosGITV1/install/urdf_2dof/lib/python3.10/site-packages:${PYTHONPATH} /usr/bin/python3 -W ignore:setup.py install is deprecated -W ignore:easy_install command is deprecated setup.py egg_info --egg-base ../../build/urdf_2dof build --build-base /ThesisRosGITV1/build/urdf_2dof/build install --record /ThesisRosGITV1/build/urdf_2dof/install.log --single-version-externally-managed install_data
+[0.877s] running egg_info
+[0.878s] creating ../../build/urdf_2dof/urdf_2dof.egg-info
+[0.878s] writing ../../build/urdf_2dof/urdf_2dof.egg-info/PKG-INFO
+[0.878s] writing dependency_links to ../../build/urdf_2dof/urdf_2dof.egg-info/dependency_links.txt
+[0.878s] writing entry points to ../../build/urdf_2dof/urdf_2dof.egg-info/entry_points.txt
+[0.879s] writing requirements to ../../build/urdf_2dof/urdf_2dof.egg-info/requires.txt
+[0.879s] writing top-level names to ../../build/urdf_2dof/urdf_2dof.egg-info/top_level.txt
+[0.879s] writing manifest file '../../build/urdf_2dof/urdf_2dof.egg-info/SOURCES.txt'
+[0.880s] error: package directory 'urdf_2dof' does not exist
+[0.896s] Invoked command in '/ThesisRosGITV1/src/urdf_2dof' returned '1': PYTHONPATH=/ThesisRosGITV1/build/urdf_2dof/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/ThesisRosGITV1/install/urdf_2dof/lib/python3.10/site-packages:${PYTHONPATH} /usr/bin/python3 -W ignore:setup.py install is deprecated -W ignore:easy_install command is deprecated setup.py egg_info --egg-base ../../build/urdf_2dof build --build-base /ThesisRosGITV1/build/urdf_2dof/build install --record /ThesisRosGITV1/build/urdf_2dof/install.log --single-version-externally-managed install_data

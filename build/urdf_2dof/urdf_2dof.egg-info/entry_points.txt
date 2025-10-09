@@ -1,0 +1,3 @@
+[console_scripts]
+dynamics_node = urdf_2dof.dynamics_node:main
+

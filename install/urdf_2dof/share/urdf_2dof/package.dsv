@@ -1,6 +1,9 @@
 source;share/urdf_2dof/hook/cmake_prefix_path.ps1
 source;share/urdf_2dof/hook/cmake_prefix_path.dsv
 source;share/urdf_2dof/hook/cmake_prefix_path.sh
+source;share/urdf_2dof/hook/pythonpath.ps1
+source;share/urdf_2dof/hook/pythonpath.dsv
+source;share/urdf_2dof/hook/pythonpath.sh
 source;share/urdf_2dof/local_setup.bash
 source;share/urdf_2dof/local_setup.dsv
 source;share/urdf_2dof/local_setup.ps1

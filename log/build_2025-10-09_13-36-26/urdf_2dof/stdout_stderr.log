@@ -1,0 +1,9 @@
+running egg_info
+creating ../../build/urdf_2dof/urdf_2dof.egg-info
+writing ../../build/urdf_2dof/urdf_2dof.egg-info/PKG-INFO
+writing dependency_links to ../../build/urdf_2dof/urdf_2dof.egg-info/dependency_links.txt
+writing entry points to ../../build/urdf_2dof/urdf_2dof.egg-info/entry_points.txt
+writing requirements to ../../build/urdf_2dof/urdf_2dof.egg-info/requires.txt
+writing top-level names to ../../build/urdf_2dof/urdf_2dof.egg-info/top_level.txt
+writing manifest file '../../build/urdf_2dof/urdf_2dof.egg-info/SOURCES.txt'
+error: package directory 'urdf_2dof' does not exist
