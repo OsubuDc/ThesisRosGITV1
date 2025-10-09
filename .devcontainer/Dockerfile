@@ -63,5 +63,3 @@ RUN echo 'export PATH=/opt/openrobots/bin:$PATH' >> ~/.bashrc && \
     echo 'export PYTHONPATH=/opt/openrobots/lib/python3.10/site-packages:$PYTHONPATH' >> ~/.bashrc && \
     echo 'export CMAKE_PREFIX_PATH=/opt/openrobots:$CMAKE_PREFIX_PATH' >> ~/.bashrc
 
-
-
