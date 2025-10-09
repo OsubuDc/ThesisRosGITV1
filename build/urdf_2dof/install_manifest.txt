@@ -1,3 +1,10 @@
+/ThesisRosGITV1/install/urdf_2dof/share/urdf_2dof/launch/display.launch.py
+/ThesisRosGITV1/install/urdf_2dof/share/urdf_2dof/config/config.rviz
+/ThesisRosGITV1/install/urdf_2dof/share/urdf_2dof/urdf/2dof.urdf
+/ThesisRosGITV1/install/urdf_2dof/share/urdf_2dof/meshes/EndEffector.STL
+/ThesisRosGITV1/install/urdf_2dof/share/urdf_2dof/meshes/base_link.STL
+/ThesisRosGITV1/install/urdf_2dof/share/urdf_2dof/meshes/Link1.STL
+/ThesisRosGITV1/install/urdf_2dof/share/urdf_2dof/meshes/Link2.STL
 /ThesisRosGITV1/install/urdf_2dof/share/ament_index/resource_index/package_run_dependencies/urdf_2dof
 /ThesisRosGITV1/install/urdf_2dof/share/ament_index/resource_index/parent_prefix_path/urdf_2dof
 /ThesisRosGITV1/install/urdf_2dof/share/urdf_2dof/environment/ament_prefix_path.sh

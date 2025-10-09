@@ -43,6 +43,15 @@ if(NOT DEFINED CMAKE_OBJDUMP)
 endif()
 
 if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_COMPONENT)
+  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/share/urdf_2dof" TYPE DIRECTORY FILES
+    "/ThesisRosGITV1/src/urdf_2dof/launch"
+    "/ThesisRosGITV1/src/urdf_2dof/config"
+    "/ThesisRosGITV1/src/urdf_2dof/urdf"
+    "/ThesisRosGITV1/src/urdf_2dof/meshes"
+    )
+endif()
+
+if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_COMPONENT)
   file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/share/ament_index/resource_index/package_run_dependencies" TYPE FILE FILES "/ThesisRosGITV1/build/urdf_2dof/ament_cmake_index/share/ament_index/resource_index/package_run_dependencies/urdf_2dof")
 endif()
 

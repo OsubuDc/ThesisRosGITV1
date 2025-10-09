@@ -1,0 +1,35 @@
+-- Found ament_cmake: 1.3.12 (/opt/ros/humble/share/ament_cmake/cmake)
+-- Found ament_lint_auto: 0.12.14 (/opt/ros/humble/share/ament_lint_auto/cmake)
+-- Added test 'flake8' to check Python code syntax and style conventions
+-- Added test 'lint_cmake' to check CMake code style
+-- Added test 'pep257' to check Python code against some of the docstring style conventions in PEP 257
+-- Added test 'xmllint' to check XML markup files
+-- Configuring done
+-- Generating done
+-- Build files have been written to: /ThesisRosGITV1/build/urdf_2dof
+-- Install configuration: ""
+-- Installing: /ThesisRosGITV1/install/urdf_2dof/share/urdf_2dof/launch
+-- Installing: /ThesisRosGITV1/install/urdf_2dof/share/urdf_2dof/launch/display.launch.py
+-- Installing: /ThesisRosGITV1/install/urdf_2dof/share/urdf_2dof/config
+-- Installing: /ThesisRosGITV1/install/urdf_2dof/share/urdf_2dof/urdf
+-- Installing: /ThesisRosGITV1/install/urdf_2dof/share/urdf_2dof/urdf/2dof.urdf
+-- Installing: /ThesisRosGITV1/install/urdf_2dof/share/urdf_2dof/meshes
+-- Installing: /ThesisRosGITV1/install/urdf_2dof/share/urdf_2dof/meshes/EndEffector.STL
+-- Installing: /ThesisRosGITV1/install/urdf_2dof/share/urdf_2dof/meshes/base_link.STL
+-- Installing: /ThesisRosGITV1/install/urdf_2dof/share/urdf_2dof/meshes/Link1.STL
+-- Installing: /ThesisRosGITV1/install/urdf_2dof/share/urdf_2dof/meshes/Link2.STL
+-- Installing: /ThesisRosGITV1/install/urdf_2dof/share/ament_index/resource_index/package_run_dependencies/urdf_2dof
+-- Up-to-date: /ThesisRosGITV1/install/urdf_2dof/share/ament_index/resource_index/parent_prefix_path/urdf_2dof
+-- Up-to-date: /ThesisRosGITV1/install/urdf_2dof/share/urdf_2dof/environment/ament_prefix_path.sh
+-- Installing: /ThesisRosGITV1/install/urdf_2dof/share/urdf_2dof/environment/ament_prefix_path.dsv
+-- Up-to-date: /ThesisRosGITV1/install/urdf_2dof/share/urdf_2dof/environment/path.sh
+-- Installing: /ThesisRosGITV1/install/urdf_2dof/share/urdf_2dof/environment/path.dsv
+-- Up-to-date: /ThesisRosGITV1/install/urdf_2dof/share/urdf_2dof/local_setup.bash
+-- Up-to-date: /ThesisRosGITV1/install/urdf_2dof/share/urdf_2dof/local_setup.sh
+-- Up-to-date: /ThesisRosGITV1/install/urdf_2dof/share/urdf_2dof/local_setup.zsh
+-- Installing: /ThesisRosGITV1/install/urdf_2dof/share/urdf_2dof/local_setup.dsv
+-- Installing: /ThesisRosGITV1/install/urdf_2dof/share/urdf_2dof/package.dsv
+-- Up-to-date: /ThesisRosGITV1/install/urdf_2dof/share/ament_index/resource_index/packages/urdf_2dof
+-- Up-to-date: /ThesisRosGITV1/install/urdf_2dof/share/urdf_2dof/cmake/urdf_2dofConfig.cmake
+-- Up-to-date: /ThesisRosGITV1/install/urdf_2dof/share/urdf_2dof/cmake/urdf_2dofConfig-version.cmake
+-- Installing: /ThesisRosGITV1/install/urdf_2dof/share/urdf_2dof/package.xml
