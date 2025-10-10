@@ -13,7 +13,7 @@ class PendulumSimulator(Node):
     def __init__(self):
         super().__init__('pendulum_simulator')
         
-        # Declare and get parameters
+        # Declare parameters
         self.declare_parameter('urdf_path', '/ThesisRosGITV1/src/urdf_2dof/urdf/2dof.urdf')
         self.declare_parameter('mesh_dir', '/ThesisRosGITV1/src/urdf_2dof/meshes')
         
@@ -27,7 +27,7 @@ class PendulumSimulator(Node):
         self.model, self.data = self.robot.model, self.robot.data
         self.model.gravity.linear = np.array([0.0, -9.81, 0.0])
         
-        # Get joint names from model (skip universe at index 0)
+        # Get joint names
         self.joint_names = [self.model.names[i] for i in range(1, self.model.njoints)]
         self.get_logger().info(f'Joint names: {self.joint_names}')
         
@@ -35,136 +35,122 @@ class PendulumSimulator(Node):
         self.ee_frame = "EndEffector"
         try:
             self.ee_id = self.model.getFrameId(self.ee_frame)
+            self.get_logger().info(f'Found end effector: {self.ee_frame}')
         except:
-            self.get_logger().error(f'Could not find frame "{self.ee_frame}" in URDF!')
-            self.get_logger().info(f'Available frames: {[self.model.frames[i].name for i in range(self.model.nframes)]}')
-            # Fallback: use last frame
+            self.get_logger().error(f'Could not find frame "{self.ee_frame}"')
+            self.get_logger().info(f'Available: {[self.model.frames[i].name for i in range(self.model.nframes)]}')
             self.ee_id = self.model.nframes - 1
-            self.get_logger().warn(f'Using frame: {self.model.frames[self.ee_id].name}')
+            self.get_logger().warn(f'Using: {self.model.frames[self.ee_id].name}')
         
-        # Desired target in XY plane
-        self.x_des = np.array([0.05, 0.05])
+        # REACHABLE target (same as your original working code)
+        self.x_des = np.array([0.2, 0.05])
         self.xdot_des = np.zeros(2)
         self.xddot_des = np.zeros(2)
         
-        # PD gains
-        self.Kp = np.diag([100, 100])
-        self.Kd = np.diag([20, 20])
+        # PD gains (same as working code)
+        self.Kp = np.diag([50, 50])
+        self.Kd = np.diag([40, 40])
+        
+        # Add damping to slow down motion
+        self.joint_damping = np.array([1.0, 1.0])  # N⋅m⋅s/rad
+        
+        # ENFORCE JOINT LIMITS (critical to stop spinning!)
+        self.q_min = np.array([-np.pi, -np.pi])  # -90° both joints
+        self.q_max = np.array([np.pi, np.pi])    # +90° both joints
+        
+        self.get_logger().info(f'Target: [{self.x_des[0]:.3f}, {self.x_des[1]:.3f}]')
+        self.get_logger().warn(f'Joint limits: [{np.degrees(self.q_min[0]):.0f}°, {np.degrees(self.q_min[1]):.0f}°] to [{np.degrees(self.q_max[0]):.0f}°, {np.degrees(self.q_max[1]):.0f}°]')
         
         # Simulation parameters
-        self.dt = 0.01  # 100 Hz
+        self.dt = 0.01
         self.time = 0.0
         
-        # Initial state: [q1, q2, v1, v2]
-        self.y = np.array([0.2, 0.1, 0.0, 0.0])
+        # Initial state: start at a good position to reach [0.05, 0.05]
+        # For target at [0.05, 0.05], good starting config is around [30°, 20°]
+        q_init = np.array([0.5, 0.35])  # radians ≈ [28.6°, 20.1°]
+        self.y = np.concatenate([q_init, np.zeros(2)])  # Zero initial velocity
         
-        # Publisher for joint states
+        self.get_logger().info(f'Initial config: [{np.degrees(q_init[0]):.1f}°, {np.degrees(q_init[1]):.1f}°]')
+        
+        # Publisher
         self.joint_pub = self.create_publisher(JointState, 'joint_states', 10)
         
-        # Timer for simulation loop
+        # Timer
         self.timer = self.create_timer(self.dt, self.step_and_publish)
         
-        self.get_logger().info('Pendulum simulator started!')
-    
-    def check_reachability(self):
-        """Check if target is within workspace"""
-        # Test multiple configurations to find workspace bounds
-        max_reach = 0
-        min_reach = float('inf')
-        
-        for q1 in np.linspace(self.model.lowerPositionLimit[0], self.model.upperPositionLimit[0], 10):
-            for q2 in np.linspace(self.model.lowerPositionLimit[1], self.model.upperPositionLimit[1], 10):
-                q_test = np.array([q1, q2])
-                pin.forwardKinematics(self.model, self.data, q_test)
-                pin.updateFramePlacements(self.model, self.data)
-                x_test = self.data.oMf[self.ee_id].translation[:2]
-                reach = np.linalg.norm(x_test)
-                max_reach = max(max_reach, reach)
-                min_reach = min(min_reach, reach)
-        
-        target_dist = np.linalg.norm(self.x_des)
-        self.get_logger().info(f'Workspace: min_reach={min_reach:.3f}m, max_reach={max_reach:.3f}m')
-        self.get_logger().info(f'Target distance: {target_dist:.3f}m')
-        
-        if target_dist > max_reach:
-            self.get_logger().warn(f'⚠️  TARGET UNREACHABLE! Target is {target_dist:.3f}m but max reach is {max_reach:.3f}m')
-        elif target_dist < min_reach:
-            self.get_logger().warn(f'⚠️  TARGET TOO CLOSE! Target is {target_dist:.3f}m but min reach is {min_reach:.3f}m')
-        else:
-            self.get_logger().info('✓ Target is within workspace')
+        self.get_logger().info('✓ Pendulum simulator started!')
     
     def robot_dynamics(self, t, y):
-        """Compute derivatives for the integrator"""
+        """Dynamics - exactly like your working code"""
         q = y[:self.model.nq]
         v = y[self.model.nq:]
         
-        # Clamp joint positions to limits
-        q_clamped = np.clip(q, self.model.lowerPositionLimit, self.model.upperPositionLimit)
-        
-        # If at limits, zero out velocity in that direction
-        v_clamped = v.copy()
-        for i in range(self.model.nq):
-            if q_clamped[i] <= self.model.lowerPositionLimit[i] and v[i] < 0:
-                v_clamped[i] = 0  # Stop moving into lower limit
-            elif q_clamped[i] >= self.model.upperPositionLimit[i] and v[i] > 0:
-                v_clamped[i] = 0  # Stop moving into upper limit
-        
-        # Forward kinematics with clamped values
-        pin.forwardKinematics(self.model, self.data, q_clamped, v_clamped)
+        # Forward kinematics
+        pin.forwardKinematics(self.model, self.data, q, v)
         pin.updateFramePlacements(self.model, self.data)
         
-        # Jacobian and its derivative (use clamped q)
-        J = pin.computeFrameJacobian(self.model, self.data, q_clamped, self.ee_id)[:2, :]
+        # Jacobian
+        J = pin.computeFrameJacobian(self.model, self.data, q, self.ee_id)[:2, :]
         J_dot = pin.getFrameJacobianTimeVariation(self.model, self.data, self.ee_id, pin.WORLD)[:2, :]
         
-        # End effector position and errors
+        # EE position and errors
         x = self.data.oMf[self.ee_id].translation[:2]
         x_err = self.x_des - x
-        xdot_err = self.xdot_des - J @ v_clamped
+        xdot_err = self.xdot_des - J @ v
         
-        # Desired EE acceleration (PD control in task space)
+        # Desired EE acceleration
         x_acc_des = self.xddot_des + self.Kd @ xdot_err + self.Kp @ x_err
         
-        # Inverse dynamics (use clamped values)
-        B = pin.crba(self.model, self.data, q_clamped)  # Mass matrix
-        n = pin.rnea(self.model, self.data, q_clamped, v_clamped, np.zeros(self.model.nv))  # Nonlinear terms
+        # Inverse dynamics
+        B = pin.crba(self.model, self.data, q)
+        n = pin.rnea(self.model, self.data, q, v, np.zeros(self.model.nv))
         
-        # Map task-space acceleration to joint-space
-        qddot_task = np.linalg.pinv(J, rcond=1e-2) @ (x_acc_des - J_dot @ v_clamped)
-        u = B @ qddot_task + n  # Control torques
+        # Map task-space to joint-space
+        qddot_task = np.linalg.pinv(J, rcond=1e-2) @ (x_acc_des - J_dot @ v)
         
-        # Actual joint accelerations from dynamics
+        # Control torque with damping
+        u = B @ qddot_task + n
+        
+        # Actual joint accelerations
         qddot = np.linalg.solve(B, u - n)
         
-        # Zero out acceleration if hitting limits
-        for i in range(self.model.nq):
-            if q_clamped[i] <= self.model.lowerPositionLimit[i] and qddot[i] < 0:
-                qddot[i] = 0
-            elif q_clamped[i] >= self.model.upperPositionLimit[i] and qddot[i] > 0:
-                qddot[i] = 0
-        
-        return np.concatenate((v_clamped, qddot))
+        return np.concatenate((v, qddot))
     
     def step_and_publish(self):
-        """Integrate one timestep and publish joint state"""
-        # Integrate from current time to time + dt
+        """Integrate one timestep and publish"""
+        
+        # CLAMP state BEFORE integration
+        self.y[:2] = np.clip(self.y[:2], self.q_min, self.q_max)
+        
+        # Integrate
         sol = solve_ivp(
             self.robot_dynamics,
             [self.time, self.time + self.dt],
             self.y,
             method='RK45',
-            max_step=self.dt / 10
+            max_step=0.001  # Same as your working code
         )
         
         # Update state
         self.y = sol.y[:, -1]
+        
+        # CLAMP state AFTER integration (CRITICAL!)
+        self.y[:2] = np.clip(self.y[:2], self.q_min, self.q_max)
+        
+        # Zero velocity if at limits
+        for i in range(2):
+            if self.y[i] <= self.q_min[i] and self.y[2+i] < 0:
+                self.y[2+i] = 0  # Stop moving into lower limit
+            elif self.y[i] >= self.q_max[i] and self.y[2+i] > 0:
+                self.y[2+i] = 0  # Stop moving into upper limit
+        
         self.time += self.dt
         
-        # Extract q and v
+        # Extract state
         q = self.y[:self.model.nq]
         v = self.y[self.model.nq:]
         
-        # Publish joint state
+        # Publish
         msg = JointState()
         msg.header = Header()
         msg.header.stamp = self.get_clock().now().to_msg()
@@ -175,43 +161,54 @@ class PendulumSimulator(Node):
         
         self.joint_pub.publish(msg)
         
-        # Log EE position periodically (every 1 second)
-        if int(self.time * 100) % 100 == 0:  # Every 100 steps = 1 second
+        # Log every second WITH JOINT ANGLES
+        if int(self.time * 100) % 100 == 0:
             pin.forwardKinematics(self.model, self.data, q, v)
             pin.updateFramePlacements(self.model, self.data)
             x = self.data.oMf[self.ee_id].translation[:2]
             x_err = self.x_des - x
             
-            # Check if joints are at limits
-            at_limit = []
-            for i in range(self.model.nq):
-                if abs(q[i] - self.model.lowerPositionLimit[i]) < 0.01:
-                    at_limit.append(f'q{i+1}=LOWER')
-                elif abs(q[i] - self.model.upperPositionLimit[i]) < 0.01:
-                    at_limit.append(f'q{i+1}=UPPER')
-            limit_str = f' [{", ".join(at_limit)}]' if at_limit else ''
+            # Convert to degrees
+            q_deg = np.degrees(q)
+            
+            # Check if at limits
+            limits = []
+            if abs(q[0] - self.q_min[0]) < 0.02:
+                limits.append('J1=MIN')
+            elif abs(q[0] - self.q_max[0]) < 0.02:
+                limits.append('J1=MAX')
+            if abs(q[1] - self.q_min[1]) < 0.02:
+                limits.append('J2=MIN')
+            elif abs(q[1] - self.q_max[1]) < 0.02:
+                limits.append('J2=MAX')
+            
+            limit_str = f' [{", ".join(limits)}]' if limits else ''
             
             self.get_logger().info(
-                f't={self.time:.2f}s | q=[{q[0]:+.2f}, {q[1]:+.2f}] | '
-                f'EE XY: [{x[0]:+.3f}, {x[1]:+.3f}] | '
-                f'Err: [{x_err[0]:+.4f}, {x_err[1]:+.4f}]{limit_str}'
+                f't={self.time:5.2f}s | '
+                f'q=[{q_deg[0]:+6.1f}°, {q_deg[1]:+6.1f}°] | '
+                f'EE=[{x[0]:+.3f}, {x[1]:+.3f}] | '
+                f'err={np.linalg.norm(x_err):.4f}{limit_str}'
             )
 
 def main(args=None):
     rclpy.init(args=args)
-    node = PendulumSimulator()
     
     try:
+        node = PendulumSimulator()
         rclpy.spin(node)
     except KeyboardInterrupt:
         pass
     finally:
-        node.destroy_node()
-        rclpy.shutdown()
+        try:
+            if rclpy.ok():
+                node.destroy_node()
+                rclpy.shutdown()
+        except:
+            pass
 
 if __name__ == '__main__':
     main()
-    
 # python3 pendulum_sim_node.py
 #   ↓
 # main() called

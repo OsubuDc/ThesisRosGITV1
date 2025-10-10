@@ -1,0 +1,4 @@
+Invoking command in '/ThesisRosGITV1/build/urdf_2dof': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/opt/ros/humble /usr/bin/cmake --build /ThesisRosGITV1/build/urdf_2dof -- -j16 -l16
+Invoked command in '/ThesisRosGITV1/build/urdf_2dof' returned '0': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/opt/ros/humble /usr/bin/cmake --build /ThesisRosGITV1/build/urdf_2dof -- -j16 -l16
+Invoking command in '/ThesisRosGITV1/build/urdf_2dof': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/opt/ros/humble /usr/bin/cmake --install /ThesisRosGITV1/build/urdf_2dof
+Invoked command in '/ThesisRosGITV1/build/urdf_2dof' returned '0': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/opt/ros/humble /usr/bin/cmake --install /ThesisRosGITV1/build/urdf_2dof
