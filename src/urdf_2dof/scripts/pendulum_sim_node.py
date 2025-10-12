@@ -55,8 +55,8 @@ class PendulumSimulator(Node):
         self.joint_damping = np.array([1.0, 1.0])  # N⋅m⋅s/rad
         
         # ENFORCE JOINT LIMITS (critical to stop spinning!)
-        self.q_min = np.array([-np.pi, -np.pi])  # -90° both joints
-        self.q_max = np.array([np.pi, np.pi])    # +90° both joints
+        self.q_min = np.array([-np.pi, -np.pi])
+        self.q_max = np.array([np.pi, np.pi])
         
         self.get_logger().info(f'Target: [{self.x_des[0]:.3f}, {self.x_des[1]:.3f}]')
         self.get_logger().warn(f'Joint limits: [{np.degrees(self.q_min[0]):.0f}°, {np.degrees(self.q_min[1]):.0f}°] to [{np.degrees(self.q_max[0]):.0f}°, {np.degrees(self.q_max[1]):.0f}°]')
@@ -67,7 +67,7 @@ class PendulumSimulator(Node):
         
         # Initial state: start at a good position to reach [0.05, 0.05]
         # For target at [0.05, 0.05], good starting config is around [30°, 20°]
-        q_init = np.array([0.5, 0.35])  # radians ≈ [28.6°, 20.1°]
+        q_init = np.array([0.05, 0.05])  # radians ≈ [28.6°, 20.1°]
         self.y = np.concatenate([q_init, np.zeros(2)])  # Zero initial velocity
         
         self.get_logger().info(f'Initial config: [{np.degrees(q_init[0]):.1f}°, {np.degrees(q_init[1]):.1f}°]')
