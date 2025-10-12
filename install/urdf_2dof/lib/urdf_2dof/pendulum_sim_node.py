@@ -1,22 +1,50 @@
 #!/usr/bin/env python3
 
-import rclpy
-from rclpy.node import Node
-from sensor_msgs.msg import JointState
-from std_msgs.msg import Header
-import numpy as np
-import pinocchio as pin
+import rclpy # ROS2 functinoality: Nodes, publishers, timers
+from rclpy.node import Node # Base class for nodes
+from sensor_msgs.msg import JointState # Message type for joint data
+from std_msgs.msg import Header #Message header: timestamp, frame_id
+import numpy as np # Numerical computation
+import pinocchio as pin #Rigid body dynamics
 from pinocchio.robot_wrapper import RobotWrapper
-from scipy.integrate import solve_ivp
+from scipy.integrate import solve_ivp #ODE solver
 
+
+# Class inherits from Node, gets all functions, variables, behaviours that are defined in the Node class
+# Class is a blueprint for creating objects. An object is an instance of a class.
 class PendulumSimulator(Node):
+    # When new object is created from class, it gets passed down to the first argument 'self'.
     def __init__(self):
+        #Calls parent class constructor, registers this node with ROS 2 as 'pendulum_simulator'
+        # Run _init_ of the parent class 'Node' and 'pendulum_simulator' is passed as the argument
+        # Node.__init__('the name of the node that needs to be created)
+            # ros2 node list -> to see al the nodes
+            # rqt_graph -> see network of nodes and topics
+        # Each node needs a unique name
         super().__init__('pendulum_simulator')
         
         # Declare parameters
+
+        # Two-Step Process in ROS 2:
+        # Step 1: declare_parameter(name, default_value)
+
+            # Registers the parameter with ROS 2
+            # Sets a default value if not provided externally
+            # Makes the parameter discoverable (you can see it with ros2 param list)
+
+        # Step 2: get_parameter(name).value
+
+            # Retrieves the actual value
+            # .value extracts the data (it's wrapped in a Parameter object)
+
+        # ros2 param list
+        # ros2 param get /pendulum_simulator urdf_path
+
+        # parameter declared in the node
         self.declare_parameter('urdf_path', '/ThesisRosGITV1/src/urdf_2dof/urdf/2dof.urdf')
         self.declare_parameter('mesh_dir', '/ThesisRosGITV1/src/urdf_2dof/meshes')
         
+        # Store parameter value in python variable
         urdf_path = self.get_parameter('urdf_path').value
         mesh_dir = self.get_parameter('mesh_dir').value
         
@@ -42,21 +70,18 @@ class PendulumSimulator(Node):
             self.ee_id = self.model.nframes - 1
             self.get_logger().warn(f'Using: {self.model.frames[self.ee_id].name}')
         
-        # REACHABLE target (same as your original working code)
+        # target 
         self.x_des = np.array([0.2, 0.05])
         self.xdot_des = np.zeros(2)
         self.xddot_des = np.zeros(2)
         
-        # PD gains (same as working code)
+        # PD gains
         self.Kp = np.diag([50, 50])
         self.Kd = np.diag([40, 40])
-        
-        # Add damping to slow down motion
-        self.joint_damping = np.array([1.0, 1.0])  # N⋅m⋅s/rad
-        
+                
         # ENFORCE JOINT LIMITS (critical to stop spinning!)
-        self.q_min = np.array([-np.pi, -np.pi])  # -90° both joints
-        self.q_max = np.array([np.pi, np.pi])    # +90° both joints
+        self.q_min = np.array([-np.pi, -np.pi])
+        self.q_max = np.array([np.pi, np.pi])
         
         self.get_logger().info(f'Target: [{self.x_des[0]:.3f}, {self.x_des[1]:.3f}]')
         self.get_logger().warn(f'Joint limits: [{np.degrees(self.q_min[0]):.0f}°, {np.degrees(self.q_min[1]):.0f}°] to [{np.degrees(self.q_max[0]):.0f}°, {np.degrees(self.q_max[1]):.0f}°]')
@@ -65,27 +90,30 @@ class PendulumSimulator(Node):
         self.dt = 0.01
         self.time = 0.0
         
-        # Initial state: start at a good position to reach [0.05, 0.05]
-        # For target at [0.05, 0.05], good starting config is around [30°, 20°]
-        q_init = np.array([0.5, 0.35])  # radians ≈ [28.6°, 20.1°]
+        # Initial state
+        q_init = np.array([0.01, 0.01]) 
         self.y = np.concatenate([q_init, np.zeros(2)])  # Zero initial velocity
         
         self.get_logger().info(f'Initial config: [{np.degrees(q_init[0]):.1f}°, {np.degrees(q_init[1]):.1f}°]')
         
         # Publisher
+        # create attribute of the object; joint_pub
+        # Publisher sends messages via topic. Type of message is JointState (standard for robot joint positions/velocities)
+        # joint_states is the name of the topic the node will publish to. Other nodes can subscripe to this topic (rviz, robot_state_publisher (converts joint states to TF transforms))
         self.joint_pub = self.create_publisher(JointState, 'joint_states', 10)
         
         # Timer
+        # Timers fires every dt seconds, calls step_and_publish method (function that belongs to class)
         self.timer = self.create_timer(self.dt, self.step_and_publish)
         
-        self.get_logger().info('✓ Pendulum simulator started!')
+        self.get_logger().info('Pendulum simulator started!')
     
     def robot_dynamics(self, t, y):
-        """Dynamics - exactly like your working code"""
         q = y[:self.model.nq]
         v = y[self.model.nq:]
         
         # Forward kinematics
+        # Computes link positions for current q. V needed as input for J_dot
         pin.forwardKinematics(self.model, self.data, q, v)
         pin.updateFramePlacements(self.model, self.data)
         
@@ -94,6 +122,9 @@ class PendulumSimulator(Node):
         J_dot = pin.getFrameJacobianTimeVariation(self.model, self.data, self.ee_id, pin.WORLD)[:2, :]
         
         # EE position and errors
+        # oMf = origin to frame transformation matrices for all frames
+        # translation -> ony x y z part of the matrix
+        # :2 -> x y
         x = self.data.oMf[self.ee_id].translation[:2]
         x_err = self.x_des - x
         xdot_err = self.xdot_des - J @ v
@@ -102,13 +133,17 @@ class PendulumSimulator(Node):
         x_acc_des = self.xddot_des + self.Kd @ xdot_err + self.Kp @ x_err
         
         # Inverse dynamics
+        #crba : Composite Rigid Body Algorithm
+        #rnea : Recursive Newton-Euler Algorithm
         B = pin.crba(self.model, self.data, q)
         n = pin.rnea(self.model, self.data, q, v, np.zeros(self.model.nv))
         
         # Map task-space to joint-space
-        qddot_task = np.linalg.pinv(J, rcond=1e-2) @ (x_acc_des - J_dot @ v)
-        
-        # Control torque with damping
+        # x¨=J(q)q¨​+J˙(q,q˙​)q˙ -> q¨​task​=J+(x¨des​−Jdot​v)
+        #pinv = pseudo inv, inv = inv (compare)
+        #qddot_task = np.linalg.pinv(J, rcond=1e-2) @ (x_acc_des - J_dot @ v)
+        qddot_task = np.linalg.inv(J) @ (x_acc_des - J_dot @ v)
+        # Control torque 
         u = B @ qddot_task + n
         
         # Actual joint accelerations
@@ -116,10 +151,11 @@ class PendulumSimulator(Node):
         
         return np.concatenate((v, qddot))
     
+
+    
     def step_and_publish(self):
-        """Integrate one timestep and publish"""
-        
-        # CLAMP state BEFORE integration
+
+        # CLAMP state BEFORE integration -> start within limits
         self.y[:2] = np.clip(self.y[:2], self.q_min, self.q_max)
         
         # Integrate
@@ -132,9 +168,9 @@ class PendulumSimulator(Node):
         )
         
         # Update state
-        self.y = sol.y[:, -1]
+        self.y = sol.y[:, -1] #final value of the integration
         
-        # CLAMP state AFTER integration (CRITICAL!)
+        # CLAMP state AFTER integration (CRITICAL!) -> end within limits
         self.y[:2] = np.clip(self.y[:2], self.q_min, self.q_max)
         
         # Zero velocity if at limits
