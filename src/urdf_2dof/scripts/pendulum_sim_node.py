@@ -245,6 +245,7 @@ def main(args=None):
 
 if __name__ == '__main__':
     main()
+    
 # python3 pendulum_sim_node.py
 #   ↓
 # main() called
