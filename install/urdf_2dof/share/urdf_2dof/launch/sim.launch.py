@@ -21,13 +21,16 @@ def generate_launch_description():
     
     params = {'robot_description': robot_desc}
     
+    # Define Nodes to launch
     # Node 1: Robot State Publisher
-    # Converts joint_states → TF transforms for visualization
+        # 1->node start 2->looks for robot_description parameter 3->build kinematic tree 4-> subscribe to joint states 5->publish TF transforms
+        # everytime new joint state message arrives it update: joint positions, computes transforms, publishes transforms to /tf topic.
+    # Publishes TF transforms based on the URDF and joint states. /tf topic and /tf_static topic.
     robot_state_publisher_node = launch_ros.actions.Node(
-        package='robot_state_publisher',
-        executable='robot_state_publisher',
-        output='screen',
-        parameters=[params]
+        package='robot_state_publisher',    # ROS package name (standard node)
+        executable='robot_state_publisher', # Node executable name
+        output='screen',                    # Print output to terminal
+        parameters=[params]                 # Pass robot_description as parameter  
     )
     
     # Node 2: Your Pendulum Simulator
@@ -44,6 +47,7 @@ def generate_launch_description():
     )
     
     # Node 3: RViz2
+    # Opens RViz and automatically loads config file.
     rviz_node = launch_ros.actions.Node(
         package='rviz2',
         executable='rviz2',

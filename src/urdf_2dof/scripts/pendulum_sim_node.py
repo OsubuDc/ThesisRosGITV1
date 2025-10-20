@@ -71,7 +71,7 @@ class PendulumSimulator(Node):
             self.get_logger().warn(f'Using: {self.model.frames[self.ee_id].name}')
         
         # target 
-        self.x_des = np.array([0.2, 0.05])
+        self.x_des = np.array([0.2, 0.1])
         self.xdot_des = np.zeros(2)
         self.xddot_des = np.zeros(2)
         
@@ -119,6 +119,8 @@ class PendulumSimulator(Node):
         
         # Jacobian
         J = pin.computeFrameJacobian(self.model, self.data, q, self.ee_id)[:2, :]
+        # J = pin.computeFrameJacobian(self.model, self.data, q, self.ee_id)
+        # print("Jacobian", J)
         J_dot = pin.getFrameJacobianTimeVariation(self.model, self.data, self.ee_id, pin.WORLD)[:2, :]
         
         # EE position and errors

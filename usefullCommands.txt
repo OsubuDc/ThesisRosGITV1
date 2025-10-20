@@ -1,0 +1,5 @@
+colcon build
+source install/setup.bash
+ros2 launch urdf_2dof sim.launch.py
+
+xhost +local:docker if rviz not working
